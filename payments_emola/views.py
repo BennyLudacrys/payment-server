@@ -64,7 +64,6 @@ def send_soap_request(wscode, params):
     password = settings.EMOLA_PASSWORD
     endpoint = settings.EMOLA_ENDPOINT
     
-    # DEBUG: Verificar se todas as credenciais estão presentes
     print(f"DEBUG - Credenciais:")
     print(f"Username: {'***' if username else 'MISSING'}")
     print(f"Password: {'***' if password else 'MISSING'}")
@@ -93,24 +92,21 @@ def send_soap_request(wscode, params):
         </soapenv:Body>
     </soapenv:Envelope>"""
     
-    # DEBUG: Mostrar o XML completo
     print(f"DEBUG - SOAP Request Body:")
     print(body)
 
     headers = {'Content-Type': 'text/xml; charset=utf-8'}
     
     try:
-        # APENAS UMA CHAMADA requests.post
         response = requests.post(
             endpoint, 
             data=body, 
             headers=headers, 
             timeout=30,
-            verify=False  # Importante para testes
+            verify=False
         )
         
         print(f"DEBUG - Response Status: {response.status_code}")
-        print(f"DEBUG - Response Headers: {dict(response.headers)}")
         print(f"DEBUG - Response Content: {response.text}")
         
         if response.status_code != 200:
@@ -119,46 +115,78 @@ def send_soap_request(wscode, params):
         # Parse da resposta
         try:
             root = ET.fromstring(response.text)
-            ns = {'ns2': 'http://webservice.bccsgw.viettel.com/'}
             
-            # Encontrar elementos com tratamento de erro
-            error_elem = root.find('.//ns2:Result/error', ns)
-            description_elem = root.find('.//ns2:Result/description', ns)
-            original_elem = root.find('.//ns2:Result/original', ns)
+            # Namespaces
+            ns1 = {'S': 'http://schemas.xmlsoap.org/soap/envelope/'}
+            ns2 = {'ns2': 'http://webservice.bccsgw.viettel.com/'}
+            
+            # Encontrar elementos
+            result_elem = root.find('.//S:Body/ns2:gwOperationResponse/Result', {**ns1, **ns2})
+            
+            if result_elem is None:
+                return {'error': 'Invalid response format', 'content': response.text}
+                
+            error_elem = result_elem.find('error')
+            description_elem = result_elem.find('description')
+            original_elem = result_elem.find('original')
             
             error = error_elem.text if error_elem is not None else 'UNKNOWN'
             description = description_elem.text if description_elem is not None else ''
             original = original_elem.text if original_elem is not None else ''
 
+            print(f"DEBUG - Gateway Response: error={error}, description={description}")
+
             if error != '0':
-                return {'error': error, 'description': description}
+                return {'error': error, 'description': description, 'gateway_error': True}
 
             # Parse do XML interno se existir
-            if original:
+            if original and original.strip():
                 try:
-                    inner_root = ET.fromstring(original)
-                    inner_ns = {'ns2': 'http://services.wsfw.vas.viettel.com/'}
+                    # Limpar CDATA se existir
+                    clean_original = original.replace('<![CDATA[', '').replace(']]>', '').strip()
+                    inner_root = ET.fromstring(clean_original)
                     
-                    inner_error_elem = inner_root.find('.//ns2:return/errorCode', inner_ns)
-                    inner_message_elem = inner_root.find('.//ns2:return/message', inner_ns)
-                    request_id_elem = inner_root.find('.//ns2:return/reqeustId', inner_ns)
-                    
-                    inner_error = inner_error_elem.text if inner_error_elem is not None else 'UNKNOWN'
-                    inner_message = inner_message_elem.text if inner_message_elem is not None else ''
-                    request_id = request_id_elem.text if request_id_elem is not None else ''
-                    
-                    return {
-                        'errorCode': inner_error, 
-                        'message': inner_message, 
-                        'reqeustId': request_id,
-                        'original': original
+                    # Tentar diferentes namespaces para compatibilidade
+                    inner_ns = {
+                        'ns2': 'http://services.wsfw.vas.viettel.com/',
+                        'S': 'http://schemas.xmlsoap.org/soap/envelope/'
                     }
+                    
+                    # Procurar o elemento return em diferentes locais
+                    return_elem = None
+                    for ns_prefix, ns_url in inner_ns.items():
+                        return_elem = inner_root.find(f'.//{{{ns_url}}}return')
+                        if return_elem is not None:
+                            break
+                    
+                    if return_elem is not None:
+                        error_code_elem = return_elem.find('errorCode')
+                        message_elem = return_elem.find('message')
+                        request_id_elem = return_elem.find('requestId')  # CORRIGIDO: era 'reqeustId'
+                        
+                        inner_error = error_code_elem.text if error_code_elem is not None else 'UNKNOWN'
+                        inner_message = message_elem.text if message_elem is not None else ''
+                        request_id = request_id_elem.text if request_id_elem is not None else ''
+                        
+                        print(f"DEBUG - API Response: errorCode={inner_error}, message={inner_message}, requestId={request_id}")
+                        
+                        return {
+                            'errorCode': inner_error, 
+                            'message': inner_message, 
+                            'requestId': request_id,  # CORRIGIDO
+                            'original': original
+                        }
+                    else:
+                        return {'error': 'No return element found', 'original': original}
+                        
                 except Exception as inner_e:
+                    print(f"DEBUG - Inner parse error: {str(inner_e)}")
                     return {'error': 'Inner parse error', 'description': str(inner_e), 'original': original}
             
             return {'error': '0', 'description': description}
             
         except Exception as parse_e:
+            print(f"DEBUG - Parse error: {str(parse_e)}")
             return {'error': 'Parse error', 'description': str(parse_e), 'content': response.text}
             
     except requests.exceptions.ConnectionError as e:
@@ -167,9 +195,49 @@ def send_soap_request(wscode, params):
         return {'error': 'Timeout', 'description': str(e)}
     except Exception as e:
         return {'error': 'Unexpected error', 'description': str(e)}
-    
+ 
     
 # View para iniciar pagamento (PushMessage - C2B)
+# @csrf_exempt
+# def initiate_payment(request):
+#     if request.method != 'POST':
+#         return HttpResponseBadRequest('Only POST allowed')
+    
+#     msisdn = request.POST.get('msisdn')
+#     amount = request.POST.get('amount')
+#     content = request.POST.get('content')
+#     language = request.POST.get('language', 'pt')  # Padrão: Português
+#     ref_no = request.POST.get('ref_no', '')
+
+#     if not all([msisdn, amount, content]):
+#         return JsonResponse({'error': 'Missing parameters'})
+
+#     trans_id = str(uuid.uuid4())[:30]  # Gera transId único
+
+#     params = {
+#         'partnerCode': settings.EMOLA_PARTNER_CODE,
+#         'msisdn': msisdn,
+#         'smsContent': content,
+#         'transAmount': amount,
+#         'transId': trans_id,
+#         'language': language,
+#         'refNo': ref_no,
+#         'key': settings.EMOLA_KEY,
+#     }
+
+#     result = send_soap_request('pushUssdMessage', params)
+
+#     # Salva transação
+#     txn = Transaction(trans_id=trans_id, msisdn=msisdn, amount=amount, content=content, ref_no=ref_no)
+#     if 'errorCode' in result and result['errorCode'] == '0':
+#         txn.status = 'success'
+#         txn.request_id = result.get('reqeustId', '')
+#     else:
+#         txn.status = 'failed'
+#     txn.save()
+
+#     return JsonResponse(result)
+# View para iniciar pagamento (PushMessage - C2B) - CORRIGIDA
 @csrf_exempt
 def initiate_payment(request):
     if request.method != 'POST':
@@ -178,13 +246,20 @@ def initiate_payment(request):
     msisdn = request.POST.get('msisdn')
     amount = request.POST.get('amount')
     content = request.POST.get('content')
-    language = request.POST.get('language', 'pt')  # Padrão: Português
+    language = request.POST.get('language', 'pt')
     ref_no = request.POST.get('ref_no', '')
 
     if not all([msisdn, amount, content]):
         return JsonResponse({'error': 'Missing parameters'})
 
-    trans_id = str(uuid.uuid4())[:30]  # Gera transId único
+    # CORREÇÃO: Formatar MSISDN corretamente (9 dígitos, prefixo 86/87)
+    if msisdn.startswith('258'):
+        msisdn = msisdn[3:]  # Remove 258
+    if len(msisdn) == 9 and not msisdn.startswith(('86', '87')):
+        # Adiciona prefixo padrão 86 se não tiver
+        msisdn = '86' + msisdn
+
+    trans_id = str(uuid.uuid4())[:30]
 
     params = {
         'partnerCode': settings.EMOLA_PARTNER_CODE,
@@ -197,13 +272,21 @@ def initiate_payment(request):
         'key': settings.EMOLA_KEY,
     }
 
-    result = send_soap_request('pushUssdMessage', params)
+    # CORREÇÃO: WSCode correto
+    result = send_soap_request('pushUsedMessage', params)
 
     # Salva transação
-    txn = Transaction(trans_id=trans_id, msisdn=msisdn, amount=amount, content=content, ref_no=ref_no)
+    txn = Transaction(
+        trans_id=trans_id, 
+        msisdn=msisdn, 
+        amount=amount, 
+        content=content, 
+        ref_no=ref_no
+    )
+    
     if 'errorCode' in result and result['errorCode'] == '0':
-        txn.status = 'success'
-        txn.request_id = result.get('reqeustId', '')
+        txn.status = 'pending'  # Mude para pending pois aguarda confirmação do usuário
+        txn.request_id = result.get('requestId', '')  # CORRIGIDO
     else:
         txn.status = 'failed'
     txn.save()
@@ -234,7 +317,7 @@ def disburse(request):
         'key': settings.EMOLA_KEY,
     }
 
-    result = send_soap_request('pushUssdDisbursementB2C', params)
+    result = send_soap_request('pushUsedDisbursementB2C', params)
 
     txn = Transaction(trans_id=trans_id, msisdn=msisdn, amount=amount, content=content)
     if 'errorCode' in result and result['errorCode'] == '0':
@@ -265,7 +348,7 @@ def check_status(request):
         'transType': trans_type,
     }
 
-    result = send_soap_request('pushUssdQueryTrans', params)
+    result = send_soap_request('pushUsedQueryTrans', params)
 
     # Atualiza status local se necessário
     try:
