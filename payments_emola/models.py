@@ -2,7 +2,7 @@ from django.db import models
 
 class Transaction(models.Model):
     trans_id = models.CharField(max_length=30, unique=True)
-    msisdn = models.CharField(max_length=9, blank=True)
+    msisdn = models.CharField(max_length=20, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     content = models.TextField(blank=True)
     ref_no = models.CharField(max_length=20, blank=True)
