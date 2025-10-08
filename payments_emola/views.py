@@ -252,12 +252,10 @@ def initiate_payment(request):
     if not all([msisdn, amount, content]):
         return JsonResponse({'error': 'Missing parameters'})
 
-    # CORREÇÃO: Formatar MSISDN corretamente (9 dígitos, prefixo 86/87)
-    if msisdn.startswith('258'):
-        msisdn = msisdn[3:]  # Remove 258
+   
     if len(msisdn) == 9 and not msisdn.startswith(('86', '87')):
         # Adiciona prefixo padrão 86 se não tiver
-        msisdn = '86' + msisdn
+        msisdn = '258' + msisdn
 
     trans_id = str(uuid.uuid4())[:30]
 
