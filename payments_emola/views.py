@@ -7,10 +7,72 @@ from django.conf import settings
 from .models import Transaction
 
 # Função auxiliar para enviar requisição SOAP
+# def send_soap_request(wscode, params):
+#     username = settings.EMOLA_USERNAME
+#     password = settings.EMOLA_PASSWORD
+#     endpoint = settings.EMOLA_ENDPOINT
+
+#     param_xml = ''
+#     for name, value in params.items():
+#         param_xml += f'<param name="{name}" value="{value}"/>'
+
+#     body = f"""<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.bccsgw.viettel.com/">
+#         <soapenv:Header/>
+#         <soapenv:Body>
+#             <web:gwOperation>
+#                 <Input>
+#                     <username>{username}</username>
+#                     <password>{password}</password>
+#                     <wscode>{wscode}</wscode>
+#                     {param_xml}
+#                     <rawData></rawData>
+#                 </Input>
+#             </web:gwOperation>
+#         </soapenv:Body>
+#     </soapenv:Envelope>"""
+
+#     headers = {'Content-Type': 'text/xml; charset=utf-8'}
+#     response = requests.post(endpoint, data=body, headers=headers)
+
+#     if response.status_code != 200:
+#         return {'error': 'HTTP error', 'code': response.status_code}
+
+#     # Parse da resposta
+#     try:
+#         root = ET.fromstring(response.text)
+#         ns = {'ns2': 'http://webservice.bccsgw.viettel.com/'}
+#         error = root.find('.//ns2:Result/error', ns).text
+#         description = root.find('.//ns2:Result/description', ns).text if root.find('.//ns2:Result/description', ns) is not None else ''
+#         original = root.find('.//ns2:Result/original', ns).text if root.find('.//ns2:Result/original', ns) is not None else ''
+
+#         if error != '0':
+#             return {'error': error, 'description': description}
+
+#         # Parse do XML interno se existir
+#         if original:
+#             inner_root = ET.fromstring(original)
+#             inner_ns = {'ns2': 'http://services.wsfw.vas.viettel.com/'}
+#             inner_error = inner_root.find('.//ns2:return/errorCode', inner_ns).text
+#             inner_message = inner_root.find('.//ns2:return/message', inner_ns).text
+#             request_id = inner_root.find('.//ns2:return/reqeustId', inner_ns).text if inner_root.find('.//ns2:return/reqeustId', inner_ns) is not None else ''
+#             return {'errorCode': inner_error, 'message': inner_message, 'reqeustId': request_id}
+#         return {'error': '0', 'description': description}
+#     except Exception as e:
+#         return {'error': 'Parse error', 'description': str(e)}
 def send_soap_request(wscode, params):
     username = settings.EMOLA_USERNAME
     password = settings.EMOLA_PASSWORD
     endpoint = settings.EMOLA_ENDPOINT
+    
+    # DEBUG: Verificar se todas as credenciais estão presentes
+    print(f"DEBUG - Credenciais:")
+    print(f"Username: {'***' if username else 'MISSING'}")
+    print(f"Password: {'***' if password else 'MISSING'}")
+    print(f"Endpoint: {endpoint}")
+    print(f"Partner Code: {settings.EMOLA_PARTNER_CODE}")
+    print(f"Key: {'***' if settings.EMOLA_KEY else 'MISSING'}")
+    print(f"WSCode: {wscode}")
+    print(f"Params: {params}")
 
     param_xml = ''
     for name, value in params.items():
@@ -30,36 +92,83 @@ def send_soap_request(wscode, params):
             </web:gwOperation>
         </soapenv:Body>
     </soapenv:Envelope>"""
+    
+    # DEBUG: Mostrar o XML completo
+    print(f"DEBUG - SOAP Request Body:")
+    print(body)
 
     headers = {'Content-Type': 'text/xml; charset=utf-8'}
-    response = requests.post(endpoint, data=body, headers=headers)
-
-    if response.status_code != 200:
-        return {'error': 'HTTP error', 'code': response.status_code}
-
-    # Parse da resposta
+    
     try:
-        root = ET.fromstring(response.text)
-        ns = {'ns2': 'http://webservice.bccsgw.viettel.com/'}
-        error = root.find('.//ns2:Result/error', ns).text
-        description = root.find('.//ns2:Result/description', ns).text if root.find('.//ns2:Result/description', ns) is not None else ''
-        original = root.find('.//ns2:Result/original', ns).text if root.find('.//ns2:Result/original', ns) is not None else ''
+        # APENAS UMA CHAMADA requests.post
+        response = requests.post(
+            endpoint, 
+            data=body, 
+            headers=headers, 
+            timeout=30,
+            verify=False  # Importante para testes
+        )
+        
+        print(f"DEBUG - Response Status: {response.status_code}")
+        print(f"DEBUG - Response Headers: {dict(response.headers)}")
+        print(f"DEBUG - Response Content: {response.text}")
+        
+        if response.status_code != 200:
+            return {'error': 'HTTP error', 'code': response.status_code, 'content': response.text}
 
-        if error != '0':
-            return {'error': error, 'description': description}
+        # Parse da resposta
+        try:
+            root = ET.fromstring(response.text)
+            ns = {'ns2': 'http://webservice.bccsgw.viettel.com/'}
+            
+            # Encontrar elementos com tratamento de erro
+            error_elem = root.find('.//ns2:Result/error', ns)
+            description_elem = root.find('.//ns2:Result/description', ns)
+            original_elem = root.find('.//ns2:Result/original', ns)
+            
+            error = error_elem.text if error_elem is not None else 'UNKNOWN'
+            description = description_elem.text if description_elem is not None else ''
+            original = original_elem.text if original_elem is not None else ''
 
-        # Parse do XML interno se existir
-        if original:
-            inner_root = ET.fromstring(original)
-            inner_ns = {'ns2': 'http://services.wsfw.vas.viettel.com/'}
-            inner_error = inner_root.find('.//ns2:return/errorCode', inner_ns).text
-            inner_message = inner_root.find('.//ns2:return/message', inner_ns).text
-            request_id = inner_root.find('.//ns2:return/reqeustId', inner_ns).text if inner_root.find('.//ns2:return/reqeustId', inner_ns) is not None else ''
-            return {'errorCode': inner_error, 'message': inner_message, 'reqeustId': request_id}
-        return {'error': '0', 'description': description}
+            if error != '0':
+                return {'error': error, 'description': description}
+
+            # Parse do XML interno se existir
+            if original:
+                try:
+                    inner_root = ET.fromstring(original)
+                    inner_ns = {'ns2': 'http://services.wsfw.vas.viettel.com/'}
+                    
+                    inner_error_elem = inner_root.find('.//ns2:return/errorCode', inner_ns)
+                    inner_message_elem = inner_root.find('.//ns2:return/message', inner_ns)
+                    request_id_elem = inner_root.find('.//ns2:return/reqeustId', inner_ns)
+                    
+                    inner_error = inner_error_elem.text if inner_error_elem is not None else 'UNKNOWN'
+                    inner_message = inner_message_elem.text if inner_message_elem is not None else ''
+                    request_id = request_id_elem.text if request_id_elem is not None else ''
+                    
+                    return {
+                        'errorCode': inner_error, 
+                        'message': inner_message, 
+                        'reqeustId': request_id,
+                        'original': original
+                    }
+                except Exception as inner_e:
+                    return {'error': 'Inner parse error', 'description': str(inner_e), 'original': original}
+            
+            return {'error': '0', 'description': description}
+            
+        except Exception as parse_e:
+            return {'error': 'Parse error', 'description': str(parse_e), 'content': response.text}
+            
+    except requests.exceptions.ConnectionError as e:
+        return {'error': 'Connection failed', 'description': str(e)}
+    except requests.exceptions.Timeout as e:
+        return {'error': 'Timeout', 'description': str(e)}
     except Exception as e:
-        return {'error': 'Parse error', 'description': str(e)}
-
+        return {'error': 'Unexpected error', 'description': str(e)}
+    
+    
 # View para iniciar pagamento (PushMessage - C2B)
 @csrf_exempt
 def initiate_payment(request):
