@@ -1,0 +1,5 @@
+[ERROR] 2025-10-15 15:52:05,653 views 54070 6180286464 - Falha na transação M-Pesa C2B: Erro desconhecido
+[ERROR] 2025-10-15 15:55:21,480 views 54221 6155251712 - Falha na transação M-Pesa C2B: Timeout na transação
+[ERROR] 2025-10-16 08:26:19,927 views 56275 6135164928 - Falha na transação M-Pesa C2B: Timeout na transação
+[ERROR] 2025-10-16 11:05:03,183 views 67338 6211743744 - Falha na transação M-Pesa C2B: Timeout na transação
+[ERROR] 2025-10-16 11:22:34,648 views 67338 6211743744 - Falha na transação M-Pesa C2B: Timeout na transação

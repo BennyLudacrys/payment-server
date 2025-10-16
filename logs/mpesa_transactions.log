@@ -1,0 +1,52 @@
+[INFO] 2025-10-15 15:50:03,238 views 54070 6163460096 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-15 15:51:43,494 views 54070 6180286464 - Processando pagamento M-Pesa C2B: 258840207973, 10 MT, App: CartaFacil
+[INFO] 2025-10-15 15:51:43,497 mpesa 54070 6180286464 - Iniciando transação C2B: {'input_TransactionReference': 'TEST001', 'input_CustomerMSISDN': '258840207973', 'input_Amount': '10', 'input_ThirdPartyReference': '4E09940138CB4297B3F5', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-15 15:52:05,648 mpesa 54070 6180286464 - Resposta M-Pesa: INS-2001 - Erro desconhecido
+[ERROR] 2025-10-15 15:52:05,653 views 54070 6180286464 - Falha na transação M-Pesa C2B: Erro desconhecido
+[INFO] 2025-10-15 15:54:15,771 views 54221 6155251712 - Processando pagamento M-Pesa C2B: 258840207973, 10 MT, App: CartaFacil
+[INFO] 2025-10-15 15:54:15,771 mpesa 54221 6155251712 - Iniciando transação C2B: {'input_TransactionReference': 'TEST001', 'input_CustomerMSISDN': '258840207973', 'input_Amount': '10', 'input_ThirdPartyReference': 'D4546DBC96FF4060AB0F', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-15 15:55:21,472 mpesa 54221 6155251712 - Resposta M-Pesa: INS-9 - Timeout na transação
+[ERROR] 2025-10-15 15:55:21,480 views 54221 6155251712 - Falha na transação M-Pesa C2B: Timeout na transação
+[WARNING] 2025-10-16 07:54:18,542 views 56275 6135164928 - Tentativa de pagamento com token inválido: Token expirado ou inválido
+[INFO] 2025-10-16 08:25:15,348 views 56275 6135164928 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-16 08:25:15,360 views 56275 6135164928 - Processando pagamento M-Pesa C2B: 258840207973, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 08:25:15,360 mpesa 56275 6135164928 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258840207973', 'input_Amount': 249, 'input_ThirdPartyReference': '2BD170CC4E1A4752AADD', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 08:26:19,920 mpesa 56275 6135164928 - Resposta M-Pesa: INS-9 - Timeout na transação
+[ERROR] 2025-10-16 08:26:19,927 views 56275 6135164928 - Falha na transação M-Pesa C2B: Timeout na transação
+[INFO] 2025-10-16 09:05:53,225 views 67338 6194343936 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 09:05:53,226 mpesa 67338 6194343936 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': '05B392124FAF45B29EB1', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 09:06:08,986 mpesa 67338 6194343936 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 09:06:08,991 views 67338 6194343936 - Transação M-Pesa C2B bem-sucedida: CJG4HQ0QDKC
+[WARNING] 2025-10-16 09:42:32,777 views 67338 6194343936 - Tentativa de pagamento com token inválido: Token expirado ou inválido
+[INFO] 2025-10-16 09:43:03,264 views 67338 6194343936 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-16 09:43:20,699 views 67338 6194343936 - Processando pagamento M-Pesa C2B: 258840207973, 0.01 MT, App: CartaFacil
+[INFO] 2025-10-16 09:43:20,699 mpesa 67338 6194343936 - Iniciando transação C2B: {'input_TransactionReference': 'TEST001', 'input_CustomerMSISDN': '258840207973', 'input_Amount': '0.01', 'input_ThirdPartyReference': '02592E39D71048B89D23', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 09:43:38,803 mpesa 67338 6194343936 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 09:43:38,808 views 67338 6194343936 - Transação M-Pesa C2B bem-sucedida: CJG9HQ191MN
+[INFO] 2025-10-16 10:22:18,281 views 67338 6211743744 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-16 10:22:18,290 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 10:22:18,290 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': '6A708D817A4443A4B7EA', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 10:22:32,486 mpesa 67338 6211743744 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 10:22:32,489 views 67338 6211743744 - Transação M-Pesa C2B bem-sucedida: CJG2HQ1SOCO
+[INFO] 2025-10-16 10:37:16,279 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 10:37:16,280 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': 'F40734003BA24C3CAAB9', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 10:37:31,367 mpesa 67338 6211743744 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 10:37:31,370 views 67338 6211743744 - Transação M-Pesa C2B bem-sucedida: CJG5HQ20CGH
+[INFO] 2025-10-16 11:03:53,380 views 67338 6211743744 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-16 11:03:53,388 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 11:03:53,388 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': 'FE845192BF29427EBC6A', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 11:05:03,175 mpesa 67338 6211743744 - Resposta M-Pesa: INS-9 - Timeout na transação
+[ERROR] 2025-10-16 11:05:03,183 views 67338 6211743744 - Falha na transação M-Pesa C2B: Timeout na transação
+[INFO] 2025-10-16 11:06:12,574 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 11:06:12,575 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': '92D3E6B28AA24593BE7A', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 11:06:28,971 mpesa 67338 6211743744 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 11:06:28,974 views 67338 6211743744 - Transação M-Pesa C2B bem-sucedida: CJG7HQ2F7IH
+[INFO] 2025-10-16 11:21:31,011 views 67338 6211743744 - Token OAuth gerado com sucesso para client_id: a0140c9f-4c66-426e-beea-73bef5ac5023
+[INFO] 2025-10-16 11:21:31,024 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 11:21:31,024 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': 'A10A1EA0930245C398CA', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 11:22:34,644 mpesa 67338 6211743744 - Resposta M-Pesa: INS-9 - Timeout na transação
+[ERROR] 2025-10-16 11:22:34,648 views 67338 6211743744 - Falha na transação M-Pesa C2B: Timeout na transação
+[INFO] 2025-10-16 11:28:39,852 views 67338 6211743744 - Processando pagamento M-Pesa C2B: 258842196627, 249 MT, App: CartaFacil
+[INFO] 2025-10-16 11:28:39,853 mpesa 67338 6211743744 - Iniciando transação C2B: {'input_TransactionReference': 'ContaPRO', 'input_CustomerMSISDN': '258842196627', 'input_Amount': 249, 'input_ThirdPartyReference': '8C2A538332EC473187F6', 'input_ServiceProviderCode': '900283'}
+[INFO] 2025-10-16 11:28:51,821 mpesa 67338 6211743744 - Resposta M-Pesa: INS-0 - Sucesso
+[INFO] 2025-10-16 11:28:51,829 views 67338 6211743744 - Transação M-Pesa C2B bem-sucedida: CJG3HQ2Q9WL
